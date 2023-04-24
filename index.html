@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stark Enterprises</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+    <style>
+      body {
+        background-color: #1c1c1c;
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .navbar {
+        background-color: #333;
+        overflow: hidden;
+      }
+      .navbar a {
+        float: left;
+        color: white;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+        font-size: 17px;
+      }
+      .navbar a:hover {
+        background-color: #ddd;
+        color: black;
+      }
+      .navbar a.active {
+        background-color: #4CAF50;
+        color: white;
+      }
+      .container {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1 {
+        text-align: center;
+        font-size: 48px;
+        color: #F4A460;
+      }
+      #upload {
+        display: block;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #F4A460;
+        color: white;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 24px;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+      }
+      #upload:hover {
+        transform: scale(1.05);
+        background-color: #FF8C00;
+      }
+      #file-input {
+        display: none;
+      }
+      #result {
+        display: none;
+        text-align: center;
+        margin-top: 20px;
+      }
+      #download {
+        display: block;
+        margin: 0 auto;
+        padding: 10px;
+        background-color: #F4A460;
+        color: white;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 24px;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+      }
+      #download:hover {
+        transform: scale(1.05);
+        background-color: #FF8C00;
+      }
+      #speed-check {
+        display: block;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #F4A460;
+        color: white;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 24px;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+      }
+      #speed-check:hover {
+        transform: scale(1.05);
+        background-color: #FF8C00;
+      }
+
+      
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <a class="active" href="#">Home</a>
+      <a href="#">About Us</a>
+      <a href="#">Services</a>
+      <a href="#">Contact Us</a>
+    </div>
+    <div class="container">
+      <h1>Stark Enterprises</h1>
+      <label for="file-input" id="upload">Select a JPG file to convert to PNG</label>
+      <input type="file" id="file-input" accept="image/jpeg">
+      <div id="result"></div>
+      <a id="download" download>Download PNG</a>
+      <button id="speed-check">Check Internet Speed</button>
+      <div id="speed-result"></div>
+      
+      <div class="container">
+        <h1>Stark Enterprises</h1>
+        <p>Stark Enterprises is a leading technology company that specializes in developing cutting-edge software and providing IT consulting services. Our team of experts has decades of combined experience and is dedicated to delivering innovative solutions that help our clients achieve their goals.</p>
+        <p>At Stark Enterprises, we pride ourselves on our commitment to excellence and our ability to adapt to the ever-changing landscape of technology. Our clients trust us to provide reliable, scalable solutions that are tailored to their specific needs.</p>
+        <p>Whether you're looking to develop a new software product, optimize your IT infrastructure, or simply need expert advice, Stark Enterprises has the expertise and resources to help you succeed. Contact us today to learn more about our services and how we can help you take your business to the next level.</p>
+
+
+        <p>Feel free to customize the text to better reflect your company's values and mission.</p>
+    
+    <script>
+    
+    
+
+const input = document.getElementById("file-input");
+const result = document.getElementById("result");
+const download = document.getElementById("download");
+const speedCheck = document.getElementById("speed-check");
+const speedResult = document.getElementById("speed-result");
+
+let imageAddr = "https://www.google.com/images/phd/px.gif";
+const timestamp = Date.now();
+imageAddr += `?n=${timestamp}`;
+
+let resolveLoad, rejectLoad, resolveError, rejectError;
+const loadPromise = new Promise((resolve, reject) => {
+  resolveLoad = resolve;
+  rejectLoad = reject;
+});
+
+const errorPromise = new Promise((resolve, reject) => {
+  resolveError = resolve;
+  rejectError = reject;
+});
+
+const downloadImage = () => {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  const img = new Image();
+  img.src = URL.createObjectURL(input.files[0]);
+  img.onload = () => {
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+    const dataURL = canvas.toDataURL("image/png");
+    download.href = dataURL;
+    download.setAttribute("download", "image.png");
+    download.click();
+  };
+};
+
+download.addEventListener("click", downloadImage);
+
+function checkInternetSpeed() {
+  speedResult.textContent = "Checking internet speed...";
+  const startTime = performance.now();
+  const downloadSize = 4995374; //bytes
+  download.src = imageAddr;
+
+  Promise.race([loadPromise, errorPromise])
+    .then(() => {
+      const endTime = performance.now();
+      const duration = (endTime - startTime) / 1000;
+      const bitsLoaded = downloadSize * 8;
+      const speedBps = (bitsLoaded / duration).toFixed(2);
+      const speedKbps = (speedBps / 1024).toFixed(2);
+      const speedMbps = (speedKbps / 1024).toFixed(2);
+      speedResult.textContent = `Your internet speed is ${speedMbps} Mbps.`;
+    })
+    .catch(() => {
+      speedResult.textContent = "Error calculating internet speed. Please try again.";
+    });
+}
+
+speedCheck.addEventListener("click", checkInternetSpeed);
+
+
+
+
+</script>
+</body>
+</html>
+
